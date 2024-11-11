@@ -1,4 +1,6 @@
-export default swaggerOptions = {
+import __dirname from "./index.js";
+import {dirname} from 'path'
+const swaggerOptions = {
     definition: {
         openapi: '3.0.1',
         info: {
@@ -6,5 +8,7 @@ export default swaggerOptions = {
             description: 'Esta es una descripcion de la documentacion de adoptame'
         }
     },
-    apis: []
+    apis: [`${dirname(__dirname)}/docs/**/*.yaml`]
 }
+
+export default swaggerOptions;

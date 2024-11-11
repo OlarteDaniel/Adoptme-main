@@ -1,0 +1,46 @@
+paths:
+  /api/users/:
+    get:
+      summary: Obtiene todos los usuarios
+      tags:
+        - Users
+      responses:
+        '200':
+          description: los usuarios fueros obtenidos correctamentes
+          content:
+            application/json:
+              schema: 
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+
+        '500':
+          description: Error interno del servidor. Usualmente por quey defectuosa
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: Id autogenerado de mongo
+        first_name: 
+          type: string
+          description: Nombre del usuario
+        last_name:
+          type: string
+          description: apellido del usuario
+        email: 
+          type: string
+          description: Email del usuario
+        password: 
+          type: string
+          description: Password del usuario
+
+      example:
+        _id: ObjectId('aBa3sa5bs64aq')
+        first_name: Daniel
+        last_name: Olarte
+        email: danielolartelamas.663@gmail.com
+        password: aba4r23sadsad32asd21r21
