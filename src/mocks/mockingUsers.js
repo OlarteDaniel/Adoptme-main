@@ -13,9 +13,7 @@ export const generateUser = async (numUsers) =>{
             role: faker.helpers.arrayElement(['user', 'admin']),
             pets:[]
         }
-
-        console.log(user);
-
+        
         users.push(user);
     }
     return users;

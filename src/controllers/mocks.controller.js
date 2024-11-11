@@ -1,15 +1,16 @@
 import { generatePet } from "../mocks/mockingPets.js";
 import { generateUser } from "../mocks/mockingUsers.js";
 import { petsService, usersService } from "../services/index.js";
+import logger from "../utils/loggers.js";
 
-const generatePets = (req,res) =>{
+const generatePets = (req,res) =>{ //Este es generatePets en plural
     const npets = req.query.num || 50;
 
     if(isNaN(npets) || npets < 1){
         return res.status(400).json({error: 'Valor invalido'});
     }
 
-    const pets = generatePet(npets)
+    const pets = generatePet(npets) //Este es generatePet en singular
     res.status(200).json(pets);
 }
 
@@ -40,13 +41,10 @@ const generateData = async(req,res) =>{
         const responseUsers = await usersService.create(users);
         const responsepets = await petsService.create(pets);
 
-        console.log(responseUsers)
-        console.log(responsepets);
-
         res.status(200).send({ status: 'success', payload: {users,pets} });
 
     } catch (error) {
-        console.log(error);
+        logger.error(error);
     }
     
 }
