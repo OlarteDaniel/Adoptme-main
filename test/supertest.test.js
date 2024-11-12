@@ -354,6 +354,76 @@ describe('Testing de Adoptame', ()=>{
     })
 
     describe('Test de adopciones', () =>{
+        let testUserId;
+        let testPetId;
+        let testAdoptionId;
+
+        before(async () => {
+            const newUser = {
+                first_name: 'Test',
+                last_name: 'User',
+                email: 'testuser123@example.com',
+                password: 'TestPassword123'
+            };
+
+            const newPet = {
+                name: 'Bobby',
+                specie: 'Perro',
+                birthDate: '2022-06-15'
+            };
+
+            const response1 = await requester.post('/api/pets').send(newPet);
+            testPetId = response1.body.payload._id;
+
+            const response2 = await requester.post('/api/users').send(newUser);
+            testUserId = response2.body.payload._id; 
+
+        });
+        
+        after(async function () {
+            if(testUserId){
+                await requester.delete(`/api/users/${testUserId}`)
+                logger.info(`Se ha eliminado los usuario de prueba`)
+            }
+            if(testPetId){
+                await requester.delete(`/api/pets/${testPetId}`)
+                logger.info(`Se ha eliminado las mascota de prueba`)
+            }
+        });
+
+        describe('Metodo POST /api/adoptions/:uid/:pid', () => {
+
+            it('Deberia crear una mascota correctamente', async() =>{
+                const response = await requester.post(`/api/adoptions/${testUserId}/${testPetId}`);
+                testAdoptionId = await response.body.payload._id;
+
+                
+            })
+
+            it('Debería devolver un error 404 si el usuario no existe', async () => {
+                const invalidId = '6732345ea6173f81d3d81432';
+                const response = await requester.post(`/api/adoptions/${invalidId}/${testPetId}`);
+                expect(response.ok).to.be.equal(false);
+                expect(response.status).to.equal(404);
+                expect(response.body).to.have.property('error', 'user Not found');
+            });
+
+            it('Debería devolver un error 404 si la mascota no existe', async () => {
+                const invalidId = '6732345ea6173f81d3d81432';
+                const response = await requester.post(`/api/adoptions/${testUserId}/${invalidId}`);
+                expect(response.ok).to.be.equal(false);
+                expect(response.status).to.equal(404);
+                expect(response.body).to.have.property('error', 'Pet not found');
+            });
+
+            it('Debería devolver un error 400 si la mascota ya ha sido adoptada', async () => {
+                const response = await requester.post(`/api/adoptions/${testUserId}/${testPetId}`);
+                expect(response.ok).to.be.equal(false);
+                expect(response.status).to.equal(400);
+                expect(response.body).to.have.property('error', 'Pet is already adopted');
+            });
+
+        });
 
         describe('Metodo GET /api/adoptions', () => {
             it('Se debería devolver una lista de adopciones', async () => {
@@ -361,6 +431,23 @@ describe('Testing de Adoptame', ()=>{
                 expect(response.ok).to.be.equal(true);
                 expect(response.status).to.equal(200);
                 expect(response.body.payload).to.be.an('array');
+            });
+        });
+
+        describe('Metodo GET /api/adoptions/:aid', () => {
+            it('Se debería devolver una adopción específica', async () => {
+                const response = await requester.get(`/api/adoptions/${testAdoptionId}`);
+                expect(response.ok).to.be.equal(true);
+                expect(response.status).to.equal(200);
+                expect(response.body.payload).to.have.property('_id', testAdoptionId);
+            });
+
+            it('Debería devolver un error 404 si la adopción no existe', async () => {
+                const invalidId = '6732345ea6173f81d3d81432';
+                const response = await requester.get(`/api/adoptions/${invalidId}`);
+                expect(response.ok).to.be.equal(false);
+                expect(response.status).to.equal(404);
+                expect(response.body).to.have.property('error', 'Adoption not found');
             });
         });
 
